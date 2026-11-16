@@ -1,0 +1,1099 @@
+<title>Sparks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: one phone-width column of soft pink "stickers"; two penguins on an iceberg stand in for Subang Jaya and Pasir Gudang. */
+:root {
+  --bg: #ffe4ee;
+  --bg-2: #ffd0e1;
+  --card: #fff7fa;
+  --well: #ffeef4;
+  --line: #f5bfd3;
+  --ink: #5b2343;
+  --muted: #a3698a;
+  --pink: #ff6f9e;
+  --pink-deep: #e0447e;
+  --butter: #ffc95c;
+  --ice: #e3f4ff;
+  --ice-2: #c6e6fb;
+  --on-pink: #ffffff;
+  --display: "Fredoka", "Baloo 2", ui-rounded, "Segoe UI", system-ui, sans-serif;
+  --body: "Nunito", ui-rounded, "Segoe UI", system-ui, sans-serif;
+  color-scheme: light;
+}
+html, body { min-height: 100%; }
+body {
+  background: radial-gradient(110% 55% at 50% -5%, #fff2f7 0%, var(--bg) 55%, var(--bg-2) 100%) fixed, var(--bg);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+#stars { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+#fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+main {
+  position: relative; z-index: 1;
+  max-width: 480px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 48px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+h1, h2 { font-family: var(--display); font-weight: 600; margin: 0; text-wrap: balance; color: var(--pink-deep); }
+h2 { font-size: 1.2rem; }
+p { margin: 0; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--butter); outline-offset: 3px; }
+
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--display); font-size: 2rem; font-weight: 700; color: var(--pink-deep); letter-spacing: .5px; display: flex; align-items: center; gap: 6px; }
+.brand svg { width: 26px; height: 26px; }
+.ghost { background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 6px 14px; color: var(--muted); font-size: .85rem; font-weight: 800; }
+.ghost:hover { color: var(--pink-deep); border-color: var(--pink); }
+
+/* Distance strip */
+.map { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+.place { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 76px; }
+.dot { width: 14px; height: 14px; border-radius: 50%; background: var(--line); box-shadow: 0 0 0 4px rgba(245,191,211,.35); transition: background .3s, box-shadow .3s; }
+.dot.on { background: var(--pink); box-shadow: 0 0 0 4px rgba(255,111,158,.25), 0 0 14px var(--pink); }
+.place b { font-family: var(--display); font-weight: 600; font-size: 1rem; }
+.place small { color: var(--muted); font-size: .7rem; letter-spacing: .4px; text-transform: uppercase; font-weight: 800; }
+.wire { position: relative; height: 40px; }
+.wire svg { width: 100%; height: 100%; overflow: visible; }
+.wire .km { position: absolute; left: 50%; top: 100%; transform: translate(-50%, -2px); font-size: .78rem; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 700; }
+.status { text-align: center; color: var(--muted); font-size: .9rem; min-height: 1.5em; margin-top: 8px; }
+.status b { color: var(--pink-deep); }
+
+/* Penguin scene */
+.scene { position: relative; border-radius: 28px; overflow: hidden; border: 3px solid #fff;
+  background: linear-gradient(180deg, #ffe9f1 0%, #fff4f8 55%, var(--ice) 56%, var(--ice-2) 100%);
+  box-shadow: 0 10px 30px rgba(224,68,126,.18); padding: 14px 10px 12px; }
+.scene::before { content: ""; position: absolute; left: 8%; right: 8%; bottom: 46px; height: 26px; border-radius: 50%; background: #fff; opacity: .7; }
+.pens { position: relative; display: grid; grid-template-columns: 1fr 1fr; align-items: end; justify-items: center; }
+.pen { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; padding: 0; min-width: 0; }
+.peng { width: 112px; height: 130px; transition: transform .6s cubic-bezier(.3,1.5,.5,1); transform-origin: 50% 100%; }
+.peng svg { width: 100%; height: 100%; overflow: visible; animation: bob 2.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.pen:nth-child(2) .peng svg { animation-delay: -1.3s; }
+.peng.hop svg { animation: hop .55s ease-out; }
+.scene.together .pen:first-child .peng { transform: translateX(22%) rotate(4deg); }
+.scene.together .pen:last-child .peng { transform: translateX(-22%) rotate(-4deg); }
+.scene.reach-sj .pen:first-child .peng { transform: translateX(8%) rotate(5deg); }
+.scene.reach-pg .pen:last-child .peng { transform: translateX(-8%) rotate(-5deg); }
+.scene.together .flip-in { transform: rotate(-55deg); }
+.flip-in, .flip-out { transition: transform .5s ease; transform-box: fill-box; transform-origin: 50% 10%; }
+.pen-name { font-family: var(--display); font-weight: 600; font-size: .98rem; color: var(--ink); }
+.mood { font-size: .78rem; color: var(--muted); font-weight: 800; text-align: center; }
+.tummy { width: 84px; height: 8px; border-radius: 99px; background: #fff; border: 1px solid var(--line); overflow: hidden; }
+.tummy i { display: block; height: 100%; background: linear-gradient(90deg, var(--butter), var(--pink)); border-radius: 99px; transition: width .4s; }
+.zz { font-family: var(--display); fill: var(--muted); font-size: 16px; }
+.pet-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pet-actions button { border: 2px solid var(--line); background: var(--card); border-radius: 16px; padding: 8px 4px; font-weight: 800; font-size: .86rem; line-height: 1.2; color: var(--ink); }
+.pet-actions button small { display: block; color: var(--muted); font-weight: 700; font-size: .72rem; }
+.pet-actions button:hover { border-color: var(--pink); }
+.pet-actions button:active { transform: scale(.96); }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-1.5deg); } 50% { transform: translateY(-4px) rotate(1.5deg); } }
+@keyframes hop { 0% { transform: translateY(0) scale(1, 1); } 25% { transform: translateY(0) scale(1.08, .9); } 55% { transform: translateY(-22px) scale(.95, 1.06); } 100% { transform: translateY(0) scale(1, 1); } }
+
+/* Spark button */
+.hero { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.spark-btn {
+  width: 156px; height: 156px; border-radius: 50%; border: 4px solid #fff;
+  background: radial-gradient(circle at 35% 30%, #ffd6e4 0%, #ff8fb4 40%, var(--pink-deep) 100%);
+  box-shadow: 0 0 0 8px rgba(255,111,158,.18), 0 14px 34px rgba(224,68,126,.4);
+  color: var(--on-pink); font-family: var(--display); font-weight: 700; font-size: 1.3rem;
+  display: grid; place-items: center; transition: transform .12s ease; touch-action: manipulation; user-select: none;
+  text-shadow: 0 1px 2px rgba(160,30,80,.35);
+}
+.spark-btn:active { transform: scale(.93); }
+.spark-btn span { display: block; line-height: 1.15; }
+.spark-btn small { display: block; font-family: var(--body); font-weight: 800; font-size: .78rem; opacity: .9; }
+.counts { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; color: var(--muted); font-size: .88rem; font-variant-numeric: tabular-nums; font-weight: 700; }
+.counts b { color: var(--pink-deep); font-weight: 800; }
+
+/* Cards */
+.card { background: var(--card); border: 2px solid #fff; border-radius: 26px; padding: 18px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 6px 20px rgba(224,68,126,.1); }
+.card .sub { color: var(--muted); font-size: .9rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 2px solid var(--line); background: var(--well); border-radius: 999px; padding: 7px 14px; font-weight: 800; font-size: .9rem; color: var(--ink); transition: background .15s, border-color .15s; }
+.chip:hover { border-color: var(--pink); }
+.chip:active { background: #ffd8e6; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.row > input { flex: 1; min-width: 0; }
+input[type="text"], input[type="datetime-local"], textarea {
+  background: var(--well); border: 2px solid var(--line); border-radius: 16px; padding: 10px 12px; width: 100%; color: var(--ink);
+}
+input::placeholder, textarea::placeholder { color: var(--muted); }
+textarea { resize: vertical; min-height: 70px; }
+.btn { border: none; border-radius: 16px; padding: 10px 18px; font-weight: 800; background: var(--pink); color: var(--on-pink); white-space: nowrap; box-shadow: 0 4px 0 var(--pink-deep); }
+.btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--pink-deep); }
+.btn.alt { background: var(--butter); color: #6b3a00; box-shadow: 0 4px 0 #e0a43a; }
+.btn:disabled, .chip:disabled, .spark-btn:disabled, .pet-actions button:disabled { opacity: .5; cursor: default; }
+
+/* Hold */
+.hold-wrap { display: flex; align-items: center; gap: 16px; }
+.hold-btn { position: relative; flex: none; width: 104px; height: 104px; border-radius: 50%; border: 3px solid var(--line); background: var(--well); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; overflow: hidden; }
+.hold-btn svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hold-btn .lbl { position: relative; font-weight: 800; font-size: .85rem; color: var(--muted); }
+.hold-btn.me { border-color: var(--pink); background: #ffe1ec; }
+.hold-btn.me .lbl { color: var(--pink-deep); }
+.hold-txt { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hold-txt .big { font-family: var(--display); font-size: 1.05rem; }
+
+/* Countdown */
+.count { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
+.count div { background: var(--well); border-radius: 16px; padding: 10px 4px; }
+.count b { display: block; font-family: var(--display); font-size: 1.7rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--pink-deep); }
+.count small { color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; font-weight: 800; }
+
+/* Question */
+.q { font-family: var(--display); font-size: 1.15rem; font-weight: 500; line-height: 1.35; }
+.ans { display: flex; flex-direction: column; gap: 4px; background: var(--well); border-radius: 16px; padding: 12px; }
+.ans small { color: var(--pink-deep); font-weight: 800; font-size: .78rem; text-transform: uppercase; letter-spacing: .5px; }
+.ans p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.locked { color: var(--muted); font-style: italic; }
+
+/* Quiz */
+.quiz { display: flex; flex-direction: column; gap: 14px; }
+.qz { display: flex; flex-direction: column; gap: 8px; padding-bottom: 12px; border-bottom: 2px dashed var(--line); }
+.qz:last-of-type { border-bottom: none; }
+.qz-title { font-family: var(--display); font-weight: 600; }
+.qz-line { display: grid; grid-template-columns: 92px 1fr 1fr; gap: 6px; align-items: center; }
+.qz-line > span { color: var(--muted); font-size: .8rem; font-weight: 800; }
+.opt { border: 2px solid var(--line); background: var(--well); border-radius: 14px; padding: 7px 6px; font-weight: 800; font-size: .86rem; min-width: 0; overflow-wrap: anywhere; color: var(--ink); }
+.opt[aria-pressed="true"] { background: var(--pink); border-color: var(--pink); color: var(--on-pink); }
+.opt.guess[aria-pressed="true"] { background: var(--butter); border-color: var(--butter); color: #6b3a00; }
+.res { display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; font-size: .9rem; }
+.res .mark { font-weight: 800; }
+.ok { color: var(--pink-deep); }
+.no { color: var(--muted); }
+.score { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; text-align: center; }
+.score div { background: var(--well); border-radius: 16px; padding: 10px; }
+.score b { display: block; font-family: var(--display); font-size: 1.6rem; color: var(--pink-deep); font-variant-numeric: tabular-nums; }
+.score small { color: var(--muted); font-size: .78rem; font-weight: 700; }
+
+/* Feed */
+.feed { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.feed li { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: baseline; padding: 8px 12px; border-radius: 14px; background: var(--well); }
+.feed li.mine { background: #fff1d6; }
+.feed li.empty { display: block; background: none; padding: 0; }
+.feed .who { color: var(--pink-deep); font-weight: 800; }
+.feed li.mine .who { color: #b8730f; }
+.feed .msg { overflow-wrap: anywhere; min-width: 0; }
+.feed time { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+.empty { color: var(--muted); font-size: .9rem; }
+
+/* Setup + settings */
+.overlay { position: fixed; inset: 0; z-index: 40; background: rgba(255,214,229,.85); backdrop-filter: blur(6px); display: grid; place-items: center;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px; }
+.overlay .card { width: 100%; max-width: 420px; }
+.pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pick button { border: 2px solid var(--line); background: var(--well); border-radius: 18px; padding: 16px 10px; display: flex; flex-direction: column; gap: 2px; align-items: center; color: var(--ink); }
+.pick button b { font-family: var(--display); font-size: 1.1rem; color: var(--pink-deep); }
+.pick button small { color: var(--muted); font-weight: 700; }
+.pick button:hover { border-color: var(--pink); }
+label { font-size: .85rem; color: var(--muted); font-weight: 800; display: flex; flex-direction: column; gap: 4px; }
+
+.banner { border: 2px solid var(--line); border-radius: 16px; padding: 10px 14px; color: var(--ink); font-size: .88rem; background: var(--card); }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 30px); opacity: 0; z-index: 60;
+  background: var(--pink-deep); color: var(--on-pink); font-weight: 800; padding: 10px 18px; border-radius: 999px; max-width: calc(100% - 32px); text-align: center;
+  box-shadow: 0 8px 20px rgba(224,68,126,.35); transition: opacity .25s, transform .25s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.foot { text-align: center; color: var(--muted); font-size: .8rem; font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) { *, *::before { transition: none !important; animation: none !important; } }
+</style>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<main>
+  <header class="top">
+    <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.7 1.2 5.3 3 1.6-1.8 3.2-3 5.3-3 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" fill="#ff6f9e"/></svg>Sparks</div>
+    <button class="ghost" id="openSettings" type="button">Settings</button>
+  </header>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <section aria-label="Where you both are">
+    <div class="map">
+      <div class="place"><span class="dot" id="dot-sj"></span><b id="name-sj">Baby</b><small>Subang Jaya</small></div>
+      <div class="wire">
+        <svg viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true">
+          <path id="wirePath" d="M0 20 Q100 -6 200 20" fill="none" stroke="#f08db2" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 7" vector-effect="non-scaling-stroke"></path>
+        </svg>
+        <span class="km">312 km apart</span>
+      </div>
+      <div class="place"><span class="dot" id="dot-pg"></span><b id="name-pg">Sayang</b><small>Pasir Gudang</small></div>
+    </div>
+    <p class="status" id="status">Opening your little corner…</p>
+  </section>
+
+  <section class="card" aria-labelledby="hPets" style="gap:14px">
+    <h2 id="hPets">Your penguins</h2>
+    <div class="scene" id="scene">
+      <div class="pens">
+        <button class="pen" type="button" id="pen-sj" aria-label="Penguin">
+          <div class="peng" id="peng-sj"></div>
+          <span class="pen-name" id="penname-sj">Baby</span>
+          <span class="tummy" title="Tummy"><i id="tummy-sj" style="width:50%"></i></span>
+          <span class="mood" id="mood-sj"></span>
+        </button>
+        <button class="pen" type="button" id="pen-pg" aria-label="Penguin">
+          <div class="peng" id="peng-pg"></div>
+          <span class="pen-name" id="penname-pg">Sayang</span>
+          <span class="tummy" title="Tummy"><i id="tummy-pg" style="width:50%"></i></span>
+          <span class="mood" id="mood-pg"></span>
+        </button>
+      </div>
+    </div>
+    <p class="sub" id="petHint">You look after their penguin, they look after yours. Tap their penguin to give it a pat.</p>
+    <div class="pet-actions">
+      <button type="button" id="petFeed">Feed fish<small id="petFeedSub">to their penguin</small></button>
+      <button type="button" id="petPat">Give a pat<small id="petPatSub">their penguin</small></button>
+      <button type="button" id="petDress">Dress up<small id="petDressSub">your penguin</small></button>
+    </div>
+  </section>
+
+  <section class="hero" aria-label="Send a spark">
+    <button class="spark-btn" id="sparkBtn" type="button" disabled>
+      <span>Send a spark<small id="sparkTo">to Sayang</small></span>
+    </button>
+    <div class="counts">
+      <span>Sent today <b id="cToday">0</b></span>
+      <span>Got today <b id="cGot">0</b></span>
+      <span>All time <b id="cAll">0</b></span>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="hHold">
+    <h2 id="hHold">Hold hands</h2>
+    <div class="hold-wrap">
+      <button class="hold-btn" id="holdBtn" type="button" aria-label="Press and hold">
+        <svg viewBox="0 0 110 110" aria-hidden="true">
+          <circle cx="55" cy="55" r="50" fill="none" stroke="#f5bfd3" stroke-width="6"></circle>
+          <circle id="holdRing" cx="55" cy="55" r="50" fill="none" stroke="#ff6f9e" stroke-width="6" stroke-linecap="round"
+            stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 55 55)"></circle>
+        </svg>
+        <span class="lbl" id="holdLbl">Hold</span>
+      </button>
+      <div class="hold-txt">
+        <span class="big" id="holdTitle">Press and hold at the same time</span>
+        <span class="sub" id="holdSub">When you're both holding, the circle fills up.</span>
+        <span class="sub">Held hands <b id="holdCount">0</b> times</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="hNote">
+    <h2 id="hNote">Little notes</h2>
+    <div class="chips" id="chips"></div>
+    <form class="row" id="noteForm">
+      <input type="text" id="noteInput" maxlength="140" placeholder="Write your own…" autocomplete="off">
+      <button class="btn" type="submit" id="noteSend">Send</button>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="hMeet">
+    <h2 id="hMeet">Until we meet</h2>
+    <div class="count" id="count" hidden>
+      <div><b id="dD">0</b><small>days</small></div>
+      <div><b id="dH">0</b><small>hours</small></div>
+      <div><b id="dM">0</b><small>min</small></div>
+      <div><b id="dS">0</b><small>sec</small></div>
+    </div>
+    <p class="sub" id="meetText">No date set yet. Pick when you'll next see each other.</p>
+    <form class="row" id="meetForm">
+      <input type="datetime-local" id="meetInput" aria-label="Next time you meet">
+      <button class="btn alt" type="submit">Set</button>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="hQ">
+    <h2 id="hQ">Today's question</h2>
+    <p class="q" id="qText"></p>
+    <div id="qBody" class="ans-list" style="display:flex;flex-direction:column;gap:10px"></div>
+  </section>
+
+  <section class="card" aria-labelledby="hQuiz">
+    <h2 id="hQuiz">How well do you know me?</h2>
+    <p class="sub" id="quizSub">Five this-or-thats a day. Pick your own answer, then guess theirs.</p>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <section class="card" aria-labelledby="hFeed">
+    <h2 id="hFeed">Recently</h2>
+    <ul class="feed" id="feed"></ul>
+  </section>
+
+  <p class="foot">Made for two. Subang Jaya ⇄ Pasir Gudang.</p>
+</main>
+
+<div class="overlay" id="setup" hidden>
+  <div class="card">
+    <h2>Who's holding this phone?</h2>
+    <p class="sub">Pick once on each phone. You can switch later in Settings.</p>
+    <div class="pick">
+      <button type="button" data-side="sj"><b id="pick-sj">Baby</b><small>in Subang Jaya</small></button>
+      <button type="button" data-side="pg"><b id="pick-pg">Sayang</b><small>in Pasir Gudang</small></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="settings" hidden>
+  <form class="card" id="settingsForm">
+    <h2>Settings</h2>
+    <label>Name for Subang Jaya<input type="text" id="setSj" maxlength="20"></label>
+    <label>Name for Pasir Gudang<input type="text" id="setPg" maxlength="20"></label>
+    <div class="row">
+      <button class="btn" type="submit">Save names</button>
+      <button class="ghost" type="button" id="switchSide">Switch phone owner</button>
+      <button class="ghost" type="button" id="closeSettings">Close</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const SIDES = ["sj", "pg"];
+  const other = (s) => (s === "sj" ? "pg" : "sj");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const NOTES = ["I miss you", "Dah makan?", "Sending a big hug", "Thinking of you", "Proud of you", "Goodnight, sleep well", "Good morning!", "Call me later?"];
+  const QUESTIONS = [
+    "What's one small thing I do that makes you smile?",
+    "If we could teleport anywhere for one evening, where would we go?",
+    "What's a smell that reminds you of home?",
+    "Which day with me would you live again?",
+    "What did you eat today that I'd steal from your plate?",
+    "What song is stuck in your head right now?",
+    "What's something you've never told me about your childhood?",
+    "What should our next date be?",
+    "What made you laugh this week?",
+    "What's your favourite photo of us, and why?",
+    "When did you first think 'I really like this person'?",
+    "What's one thing you want us to do before the year ends?",
+    "What would your perfect lazy Sunday with me look like?",
+    "Which mamak order describes your personality?",
+    "What's a little worry I can help you carry today?",
+    "What do you miss most about being together?",
+    "If we had a pet together, what would we name it?",
+    "What's a habit of mine you secretly find cute?",
+    "Describe today in three words.",
+    "What's a place in Johor you want to show me?",
+    "What's a place in Selangor you want me to take you?",
+    "What would you put in a care package for me?",
+    "What's the best advice you've ever got?",
+    "What are you looking forward to this week?",
+    "What's your comfort movie or drama?",
+    "Which of our inside jokes is your favourite?",
+    "What's a dream you haven't said out loud yet?",
+    "What does a perfect phone call with me sound like?",
+    "If you could cook me one meal, what would it be?",
+    "What's something you're proud of yourself for lately?",
+    "What should we name our future house?",
+    "Rain at night: cosy or annoying?",
+    "Which emoji are you today?",
+    "What's one thing that made today better?",
+    "What do you want to hear from me right now?",
+    "What's a memory of us you replay when you can't sleep?",
+    "What's the first thing we're doing next time we meet?",
+    "Teh tarik or kopi ais?",
+    "What's something new you'd like us to try together?",
+    "What made you feel loved this week?"
+  ];
+
+  const QUIZ = [
+    ["Nasi lemak", "Roti canai"], ["Beach", "Mountains"], ["Morning person", "Night owl"], ["Text", "Voice note"],
+    ["Cats", "Dogs"], ["Sweet", "Spicy"], ["Movie night in", "Night out"], ["Teh tarik", "Kopi ais"],
+    ["Rain", "Sunshine"], ["Plan everything", "Go with the flow"], ["Mamak", "Café"], ["Horror", "Romcom"],
+    ["Big birthday party", "Quiet dinner"], ["Shopping mall", "Pasar malam"], ["Call", "Chat"], ["Ice cream", "Cake"],
+    ["Early to the airport", "Just in time"], ["Window seat", "Aisle seat"], ["Sleep in", "Wake up early"], ["Durian, yes", "Durian, no way"],
+    ["Chicken", "Beef"], ["Bubble tea", "Coconut shake"], ["Road trip", "Flight"], ["KFC", "McD"],
+    ["Drama series", "Movies"], ["Sunrise", "Sunset"], ["Handwritten letter", "Surprise gift"], ["Say sorry first", "Need time first"],
+    ["Netflix", "YouTube"], ["Pedas gila", "Pedas sikit je"], ["Cuddles", "Holding hands"], ["Pizza", "Burger"],
+    ["Theme park", "Museum"], ["Rainy day nap", "Rainy day snacks"], ["Matching outfits", "No thanks"], ["Breakfast date", "Dinner date"],
+    ["Singing in the car", "Quiet drive"], ["Photos of food", "Photos of us"], ["Hot weather", "Air-cond cold"], ["Sambal", "Kicap"]
+  ];
+
+  // ---------- local per-phone convenience ----------
+  const ls = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+  };
+  let side = ls.get("sparks.side");
+  if (!SIDES.includes(side)) side = null;
+
+  // ---------- state ----------
+  const names = { sj: "Baby", pg: "Sayang" };
+  const people = { sj: null, pg: null };     // live docs
+  let mine = null;                            // my doc, local working copy
+  let mineReady = false;
+  let meet = null;
+  const answers = { sj: null, pg: null };
+  let db = null, room = null;
+  let peers = [];
+  let holding = false;
+  let liveOther = null;                       // their hold state from the shared store
+  const quizDocs = { sj: null, pg: null };
+  let qzPick = { me: [], guess: [] };
+
+  const todayKey = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kuala_Lumpur" }).format(new Date());
+  const blankMine = () => ({ sparks: 0, day: todayKey(), today: 0, lastSparkAt: 0, holds: 0, feed: [] });
+
+  // ---------- UI helpers ----------
+  let toastTimer;
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
+  }
+  function ago(ms) {
+    const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+    if (s < 45) return "just now";
+    const m = Math.round(s / 60); if (m < 60) return m + "m ago";
+    const h = Math.round(m / 60); if (h < 24) return h + "h ago";
+    return Math.round(h / 24) + "d ago";
+  }
+  const nm = (s) => names[s] || (s === "sj" ? "Baby" : "Sayang");
+
+  function renderNames() {
+    for (const s of SIDES) { $("name-" + s).textContent = nm(s); $("pick-" + s).textContent = nm(s); }
+    if (side) $("sparkTo").textContent = "to " + nm(other(side));
+  }
+
+  function renderCounts() {
+    if (!side) return;
+    const me = mine || blankMine();
+    const them = people[other(side)];
+    const tk = todayKey();
+    $("cToday").textContent = me.day === tk ? me.today : 0;
+    $("cGot").textContent = them && them.day === tk ? them.today : 0;
+    $("cAll").textContent = (me.sparks || 0) + (them ? them.sparks || 0 : 0);
+    $("holdCount").textContent = Math.max(me.holds || 0, them ? them.holds || 0 : 0);
+  }
+
+  function renderStatus() {
+    if (!side) return;
+    const o = other(side);
+    const here = peers.some((p) => !p.isMe && p.presence && p.presence.side === o);
+    $("dot-" + side).classList.add("on");
+    $("dot-" + o).classList.toggle("on", here);
+    const them = people[o];
+    let html;
+    if (here) html = `<b>${esc(nm(o))}</b> is here right now`;
+    else if (otherHolding()) html = `<b>${esc(nm(o))}</b> is holding out a hand`;
+    else if (them && them.seenAt) html = `${esc(nm(o))} was here ${ago(them.seenAt)}`;
+    else if (them && them.lastSparkAt) html = `${esc(nm(o))} last sparked you ${ago(them.lastSparkAt)}`;
+    else html = `Waiting for ${esc(nm(o))} to open Sparks`;
+    $("status").innerHTML = html;
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  function renderFeed() {
+    const items = [];
+    for (const s of SIDES) {
+      const d = s === side && mine ? mine : people[s];
+      if (d && Array.isArray(d.feed)) for (const it of d.feed) items.push({ ...it, s });
+    }
+    items.sort((a, b) => b.t - a.t);
+    const ul = $("feed"); ul.textContent = "";
+    if (!items.length) { const li = document.createElement("li"); li.className = "empty"; li.textContent = "Nothing yet. Send a spark or a note to start your story."; ul.appendChild(li); return; }
+    for (const it of items.slice(0, 25)) {
+      const li = document.createElement("li"); if (it.s === side) li.classList.add("mine");
+      const msg = document.createElement("span"); msg.className = "msg";
+      const who = document.createElement("span"); who.className = "who"; who.textContent = (it.s === side ? "You" : nm(it.s)) + " ";
+      msg.appendChild(who);
+      msg.appendChild(document.createTextNode(
+        it.k === "spark" ? `sent ${it.n > 1 ? it.n + " sparks" : "a spark"}` :
+        it.k === "hold" ? "held hands with " + (it.s === side ? nm(other(side)) : "you") :
+        it.k === "answer" ? "answered today's question" :
+        it.k === "meet" ? "set the next meet-up" :
+        it.k === "quiz" ? `guessed ${it.n}/5 right in the quiz` :
+        it.k === "fish" ? (it.s === side ? `fed ${nm(other(side))}'s penguin a fish` : "fed your penguin a fish") :
+        it.k === "pat" ? (it.s === side ? `patted ${nm(other(side))}'s penguin` : "patted your penguin") :
+        it.k === "dress" ? `dressed their penguin up (${it.text === "none" ? "no outfit" : it.text})` :
+        `“${it.text}”`));
+      const tm = document.createElement("time"); tm.textContent = ago(it.t);
+      li.append(msg, tm); ul.appendChild(li);
+    }
+  }
+
+  function setEnabled() {
+    const ok = !!(db && side && mineReady);
+    $("sparkBtn").disabled = !side || (db && !mineReady);
+    for (const b of document.querySelectorAll(".chip")) b.disabled = !ok;
+    $("noteSend").disabled = !ok;
+  }
+
+  // ---------- my document: single serial writer ----------
+  let writing = false, dirty = false;
+  async function flushMine() {
+    if (!db || !side || !mineReady) return;
+    dirty = true;
+    if (writing) return;
+    writing = true;
+    while (dirty) {
+      dirty = false;
+      try { await db.doc("people/" + side).set(JSON.parse(JSON.stringify(mine))); }
+      catch (e) { if (e && e.code === "quota_exceeded") toast("Storage is full."); else if (e && e.code === "invalid_argument") { toast("You can't save on this view."); break; } }
+    }
+    writing = false;
+  }
+  function notifyHook(entry) { try { if (window.sparksNotify) window.sparksNotify(entry); } catch {} }
+  function pushFeed(entry) {
+    notifyHook(entry);
+    mine.feed = [{ t: Date.now(), ...entry }, ...(mine.feed || [])].slice(0, 30);
+  }
+  function rollDay() { const tk = todayKey(); if (mine.day !== tk) { mine.day = tk; mine.today = 0; } }
+
+  // ---------- spark ----------
+  let pendingSparks = 0, sparkTimer;
+  $("sparkBtn").addEventListener("click", (e) => {
+    if (!side) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2, 34);
+    travel(side); hop(side);
+    if (room) room.emit("spark", { from: side }).catch(() => {});
+    if (!mine) { renderCounts(); return; }
+    rollDay();
+    mine.sparks = (mine.sparks || 0) + 1; mine.today += 1; mine.lastSparkAt = Date.now();
+    pendingSparks++;
+    renderCounts();
+    clearTimeout(sparkTimer);
+    sparkTimer = setTimeout(() => {
+      const n = pendingSparks; pendingSparks = 0;
+      const head = mine.feed && mine.feed[0];
+      if (head && head.k === "spark" && Date.now() - head.t < 5 * 60e3) { head.n += n; head.t = Date.now(); notifyHook({ k: "spark", n }); }
+      else pushFeed({ k: "spark", n });
+      renderFeed(); flushMine();
+    }, 700);
+  });
+
+  // ---------- notes ----------
+  for (const text of NOTES) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = text;
+    b.addEventListener("click", () => sendNote(text, b)); $("chips").appendChild(b);
+  }
+  $("noteForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const v = $("noteInput").value.trim(); if (!v) return;
+    sendNote(v, $("noteSend")); $("noteInput").value = "";
+  });
+  function sendNote(text, el) {
+    if (!mine || !mineReady) return;
+    pushFeed({ k: "note", text: text.slice(0, 140) });
+    renderFeed(); flushMine();
+    const r = el.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 18, true);
+    if (room) room.emit("note", { from: side, text: text.slice(0, 140) }).catch(() => {});
+    toast("Sent to " + nm(other(side)));
+  }
+
+  // ---------- hold hands ----------
+  const ring = $("holdRing"), RING = 314.16;
+  let progress = 0, lastFrame = 0, celebrated = false;
+  function otherHolding() {
+    if (!side) return false;
+    const viaRoom = peers.some((p) => !p.isMe && p.presence && p.presence.side === other(side) && p.presence.holding);
+    const viaDb = !!(liveOther && liveOther.holding && Math.abs(Date.now() - (liveOther.at || 0)) < 120000);
+    return viaRoom || viaDb;
+  }
+  // Hold state goes through the shared store (works for guests), plus the room when it's available.
+  let liveBusy = false, liveWant = null;
+  async function writeLive(v) {
+    liveWant = v;
+    if (liveBusy || !db || !side) return;
+    liveBusy = true;
+    while (liveWant !== null) {
+      const w = liveWant; liveWant = null;
+      try { await db.doc("live/" + side).set({ holding: w, at: Date.now() }); } catch {}
+    }
+    liveBusy = false;
+  }
+  function setHolding(v) {
+    if (holding === v) return; holding = v;
+    $("holdBtn").classList.toggle("me", v);
+    if (room) room.presence({ side, holding: v }).catch(() => {});
+    writeLive(v);
+    if (!v) celebrated = false;
+    tickHold();
+  }
+  const hb = $("holdBtn");
+  hb.addEventListener("pointerdown", (e) => {
+    if (!side || (!room && !db)) { toast("Hold hands needs Sparks to be shared with both of you."); return; }
+    e.preventDefault();
+    try { hb.setPointerCapture(e.pointerId); } catch {}
+    setHolding(true);
+  });
+  hb.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
+  ["pointerup", "pointercancel"].forEach((ev) => { hb.addEventListener(ev, () => setHolding(false)); addEventListener(ev, () => setHolding(false)); });
+  addEventListener("blur", () => setHolding(false));
+  document.addEventListener("visibilitychange", () => { if (document.hidden) setHolding(false); });
+  hb.addEventListener("contextmenu", (e) => e.preventDefault());
+  hb.addEventListener("keydown", (e) => { if ((e.key === " " || e.key === "Enter") && !e.repeat) { e.preventDefault(); setHolding(true); } });
+  hb.addEventListener("keyup", (e) => { if (e.key === " " || e.key === "Enter") setHolding(false); });
+
+  let holdRaf = 0;
+  function tickHold(now) {
+    cancelAnimationFrame(holdRaf);
+    now = now || performance.now();
+    const dt = lastFrame ? Math.min(100, now - lastFrame) : 16; lastFrame = now;
+    const both = holding && otherHolding();
+    const o = nm(other(side || "sj"));
+    if (both) progress = Math.min(1, progress + dt / 3000);
+    else progress = Math.max(0, progress - dt / 600);
+    ring.setAttribute("stroke-dashoffset", String(RING * (1 - progress)));
+    const sc = $("scene");
+    if (side) {
+      sc.classList.toggle("together", both);
+      sc.classList.toggle("reach-" + side, holding && !both);
+      sc.classList.toggle("reach-" + other(side), !both && otherHolding());
+    }
+    $("holdLbl").textContent = both ? "Together" : holding ? "Holding…" : "Hold";
+    if (both) { $("holdTitle").textContent = "You're holding hands"; $("holdSub").textContent = "Keep holding…"; }
+    else if (holding) { $("holdTitle").textContent = `Waiting for ${o}…`; $("holdSub").textContent = `${o} needs to hold too.`; }
+    else if (otherHolding()) { $("holdTitle").textContent = `${o} is holding out a hand`; $("holdSub").textContent = "Press and hold to take it."; }
+    else { $("holdTitle").textContent = "Press and hold at the same time"; $("holdSub").textContent = "When you're both holding, the circle fills up."; }
+    if (progress >= 1 && !celebrated) {
+      celebrated = true;
+      const r = hb.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, 80, true);
+      if (navigator.vibrate) try { navigator.vibrate([60, 40, 120]); } catch {}
+      if (mine && mineReady) { mine.holds = (mine.holds || 0) + 1; pushFeed({ k: "hold" }); renderFeed(); renderCounts(); flushMine(); }
+      toast("Held hands with " + o);
+    }
+    if (both || progress > 0) { holdRaf = requestAnimationFrame(tickHold); } else lastFrame = 0;
+  }
+
+  // ---------- countdown ----------
+  function renderMeet() {
+    if (!meet || !meet.at) { $("count").hidden = true; $("meetText").textContent = "No date set yet. Pick when you'll next see each other."; return; }
+    const at = new Date(meet.at).getTime();
+    const left = at - Date.now();
+    $("count").hidden = left <= 0;
+    const when = new Date(at).toLocaleString("en-MY", { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kuala_Lumpur" });
+    if (left <= 0) { $("meetText").textContent = `It's time. You're together (${when}). Set the next one when you're ready.`; return; }
+    const s = Math.floor(left / 1000);
+    $("dD").textContent = Math.floor(s / 86400); $("dH").textContent = Math.floor(s / 3600) % 24;
+    $("dM").textContent = Math.floor(s / 60) % 60; $("dS").textContent = s % 60;
+    $("meetText").textContent = "Next hug: " + when;
+  }
+  setInterval(renderMeet, 1000);
+  $("meetForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const v = $("meetInput").value; if (!v) return;
+    const iso = new Date(v + ":00+08:00").toISOString();
+    meet = { at: iso, by: side }; renderMeet();
+    if (db) { try { await db.doc("shared/meet").set(meet); if (mine && mineReady) { pushFeed({ k: "meet" }); renderFeed(); flushMine(); } toast("Countdown set"); } catch { toast("Couldn't save the date. Try again."); } }
+  });
+
+  // ---------- daily question ----------
+  const dayIndex = () => Math.floor(new Date(todayKey() + "T00:00:00Z").getTime() / 86400000);
+  $("qText").textContent = QUESTIONS[dayIndex() % QUESTIONS.length];
+  let editing = false;
+  function renderQ() {
+    const box = $("qBody"); box.textContent = "";
+    if (!side) return;
+    const o = other(side), my = answers[side], their = answers[o];
+    if (!my || editing) {
+      const f = document.createElement("form"); f.style.display = "flex"; f.style.flexDirection = "column"; f.style.gap = "8px";
+      const ta = document.createElement("textarea"); ta.id = "qInput"; ta.maxLength = 500; ta.placeholder = "Your answer…"; ta.value = my ? my.text : "";
+      const row = document.createElement("div"); row.className = "row"; row.style.alignItems = "center"; row.style.justifyContent = "space-between";
+      const hint = document.createElement("span"); hint.className = "sub";
+      hint.textContent = their ? `${nm(o)} already answered. Answer to see it.` : `${nm(o)}'s answer shows once you've both answered.`;
+      const btn = document.createElement("button"); btn.className = "btn"; btn.type = "submit"; btn.textContent = "Save"; btn.disabled = !db;
+      row.append(hint, btn); f.append(ta, row); box.appendChild(f);
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault(); const text = ta.value.trim(); if (!text || !db) return;
+        btn.disabled = true;
+        try {
+          const first = !answers[side];
+          await db.doc(`answers/${todayKey()}_${side}`).set({ text, at: Date.now() });
+          editing = false;
+          if (first && mine && mineReady) { pushFeed({ k: "answer" }); renderFeed(); flushMine(); }
+          if (room) room.emit("answer", { from: side }).catch(() => {});
+        } catch { toast("Couldn't save your answer. Try again."); btn.disabled = false; }
+      });
+      return;
+    }
+    box.appendChild(ansBox("You", my.text));
+    if (their) box.appendChild(ansBox(nm(o), their.text));
+    else { const p = document.createElement("p"); p.className = "locked"; p.textContent = `Waiting for ${nm(o)} to answer…`; box.appendChild(p); }
+    const ed = document.createElement("button"); ed.className = "ghost"; ed.type = "button"; ed.textContent = "Edit my answer"; ed.style.alignSelf = "flex-start";
+    ed.addEventListener("click", () => { editing = true; renderQ(); }); box.appendChild(ed);
+  }
+  function ansBox(who, text) {
+    const d = document.createElement("div"); d.className = "ans";
+    const s = document.createElement("small"); s.textContent = who;
+    const p = document.createElement("p"); p.textContent = text; d.append(s, p); return d;
+  }
+
+  // ---------- setup & settings ----------
+  function chooseSide(s) {
+    side = s; ls.set("sparks.side", s); $("setup").hidden = true;
+    renderNames(); renderCounts(); renderStatus(); renderQ(); renderFeed(); setEnabled();
+    if (db) connectDb();
+    if (room) room.presence({ side, holding: false }).catch(() => {});
+  }
+  for (const b of document.querySelectorAll("#setup [data-side]")) b.addEventListener("click", () => chooseSide(b.dataset.side));
+  $("openSettings").addEventListener("click", () => { $("setSj").value = nm("sj"); $("setPg").value = nm("pg"); $("settings").hidden = false; });
+  $("closeSettings").addEventListener("click", () => ($("settings").hidden = true));
+  $("switchSide").addEventListener("click", () => { $("settings").hidden = true; $("setup").hidden = false; });
+  $("settingsForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    names.sj = $("setSj").value.trim() || "Baby"; names.pg = $("setPg").value.trim() || "Sayang";
+    renderNames(); renderAll(); $("settings").hidden = true;
+    if (db) { try { await db.doc("shared/config").set({ sj: names.sj, pg: names.pg }); toast("Names saved"); } catch { toast("Couldn't save names."); } }
+  });
+
+  function renderAll() { renderPets(); renderNames(); renderCounts(); renderStatus(); renderFeed(); renderQ(); renderQuiz(); renderMeet(); setEnabled(); }
+
+  // ---------- incoming sparks, notes and answers (from their saved feed) ----------
+  let seenTheirTs = Number(ls.get("sparks.seenTs") || 0);
+  function onTheirDoc(d) {
+    if (!d || !side) return;
+    const feed = Array.isArray(d.feed) ? d.feed : [];
+    const newest = feed.reduce((m, x) => Math.max(m, x.t || 0), 0);
+    if (!seenTheirTs) { seenTheirTs = newest || 1; ls.set("sparks.seenTs", String(seenTheirTs)); return; }
+    const fresh = feed.filter((x) => (x.t || 0) > seenTheirTs).sort((a, b) => a.t - b.t);
+    if (!fresh.length) return;
+    seenTheirTs = newest; ls.set("sparks.seenTs", String(newest));
+    const o = nm(other(side));
+    const last = fresh[fresh.length - 1];
+    if (fresh.some((x) => x.k === "spark") && !recentLive) incoming();
+    if (last.k === "note") { toast(`${o}: ${String(last.text || "").slice(0, 140)}`); burstCenter(); }
+    else if (last.k === "spark" && !recentLive) toast(`${o} sent you ${last.n > 1 ? last.n + " sparks" : "a spark"}`);
+    else if (last.k === "answer") toast(`${o} answered today's question`);
+    else if (last.k === "quiz") toast(`${o} finished today's quiz`);
+    else if (last.k === "meet") toast(`${o} set the next meet-up`);
+    else if (last.k === "fish") { toast(`${o} fed your penguin a fish`); hop(side); const [x, y] = penPoint(side); fishRain(x, y); }
+    else if (last.k === "pat") { toast(`${o} patted your penguin`); hop(side); const [x, y] = penPoint(side); burst(x, y, 20, true); }
+    else if (last.k === "dress") { toast(`${o}'s penguin has a new look`); hop(other(side)); }
+  }
+
+  // ---------- quiz ----------
+  const quizItems = () => [0, 1, 2, 3, 4].map((i) => QUIZ[(dayIndex() * 5 + i) % QUIZ.length]);
+  function renderQuiz() {
+    const box = $("quiz"); box.textContent = "";
+    if (!side) return;
+    const o = other(side), oN = nm(o), items = quizItems();
+    const my = quizDocs[side], their = quizDocs[o];
+    if (!my) {
+      items.forEach((pair, i) => {
+        const q = document.createElement("div"); q.className = "qz";
+        const t = document.createElement("div"); t.className = "qz-title"; t.textContent = `${pair[0]} or ${pair[1]}?`;
+        q.appendChild(t);
+        for (const kind of ["me", "guess"]) {
+          const line = document.createElement("div"); line.className = "qz-line";
+          const lab = document.createElement("span"); lab.textContent = kind === "me" ? "You" : `Guess ${oN}`;
+          line.appendChild(lab);
+          pair.forEach((opt, j) => {
+            const b = document.createElement("button"); b.type = "button"; b.className = "opt" + (kind === "guess" ? " guess" : "");
+            b.textContent = opt; b.setAttribute("aria-pressed", String(qzPick[kind][i] === j));
+            b.addEventListener("click", () => { qzPick[kind][i] = j; renderQuiz(); });
+            line.appendChild(b);
+          });
+          q.appendChild(line);
+        }
+        box.appendChild(q);
+      });
+      const done = [0, 1, 2, 3, 4].every((i) => qzPick.me[i] != null && qzPick.guess[i] != null);
+      const row = document.createElement("div"); row.className = "row"; row.style.alignItems = "center"; row.style.justifyContent = "space-between";
+      const hint = document.createElement("span"); hint.className = "sub";
+      hint.textContent = their ? `${oN} already played. Finish to see the results.` : "Results show once you've both played.";
+      const btn = document.createElement("button"); btn.className = "btn"; btn.type = "button"; btn.textContent = "Lock in";
+      btn.disabled = !done || !db;
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          await db.doc(`quiz/${todayKey()}_${side}`).set({ me: qzPick.me.slice(0, 5), guess: qzPick.guess.slice(0, 5), at: Date.now() });
+        } catch { toast("Couldn't save. Try again."); btn.disabled = false; }
+      });
+      row.append(hint, btn); box.appendChild(row);
+      return;
+    }
+    if (!their) {
+      const p = document.createElement("p"); p.className = "locked"; p.textContent = `Locked in. Waiting for ${oN} to play today's round…`;
+      box.appendChild(p); appendTotals(box); return;
+    }
+    let mine5 = 0, theirs5 = 0;
+    items.forEach((pair, i) => {
+      const q = document.createElement("div"); q.className = "qz";
+      const t = document.createElement("div"); t.className = "qz-title"; t.textContent = `${pair[0]} or ${pair[1]}?`;
+      const r = document.createElement("div"); r.className = "res";
+      const iGot = my.guess[i] === their.me[i], theyGot = their.guess[i] === my.me[i];
+      if (iGot) mine5++; if (theyGot) theirs5++;
+      addRes(r, `${oN} picked ${pair[their.me[i]]}, you guessed ${pair[my.guess[i]]}`, iGot);
+      addRes(r, `You picked ${pair[my.me[i]]}, ${oN} guessed ${pair[their.guess[i]]}`, theyGot);
+      q.append(t, r); box.appendChild(q);
+    });
+    const sc = document.createElement("div"); sc.className = "score";
+    sc.innerHTML = `<div><b>${mine5}/5</b><small>You know ${esc(oN)}</small></div><div><b>${theirs5}/5</b><small>${esc(oN)} knows you</small></div>`;
+    box.appendChild(sc); appendTotals(box);
+    awardQuiz(mine5);
+  }
+  function addRes(r, text, ok) {
+    const a = document.createElement("span"); a.textContent = text;
+    const b = document.createElement("span"); b.className = "mark " + (ok ? "ok" : "no"); b.textContent = ok ? "✓" : "✗";
+    r.append(a, b);
+  }
+  function appendTotals(box) {
+    const o = other(side), them = people[o], me = mine || {};
+    const p = document.createElement("p"); p.className = "sub";
+    p.textContent = `All-time correct guesses: you ${me.quizPts || 0}, ${nm(o)} ${(them && them.quizPts) || 0}.`;
+    box.appendChild(p);
+  }
+  function awardQuiz(score) {
+    const tk = todayKey();
+    if (!mine || !mineReady || mine.quizDay === tk) return;
+    mine.quizDay = tk; mine.quizPts = (mine.quizPts || 0) + score;
+    pushFeed({ k: "quiz", n: score }); renderFeed(); flushMine();
+  }
+  let recentLive = false, liveTimer;
+  function incoming() {
+    travel(other(side)); hop(other(side));
+    const r = $("sparkBtn").getBoundingClientRect();
+    setTimeout(() => burst(r.left + r.width / 2, r.top + r.height / 2, 40, true), reduced ? 0 : 650);
+    if (navigator.vibrate) try { navigator.vibrate(40); } catch {}
+  }
+
+  // ---------- db wiring ----------
+  const unsubs = [];
+  function connectDb() {
+    unsubs.splice(0).forEach((u) => u());
+    mineReady = false; mine = null; setEnabled();
+    const loadTimer = setTimeout(() => { if (!mineReady) showBanner("Can't reach your shared space yet. Check your connection; it'll catch up by itself."); }, 10000);
+    unsubs.push(db.doc("people/" + side).onSnapshot((snap) => {
+      if (!snap.metadata.fromCache) { clearTimeout(loadTimer); hideBanner(); }
+      if (!writing && !dirty && !pendingSparks) mine = snap.exists ? { ...blankMine(), ...JSON.parse(JSON.stringify(snap.data())) } : (mine || blankMine());
+      if (!snap.metadata.fromCache && !mineReady) { mineReady = true; setEnabled(); markSeen(); renderQuiz(); }
+      renderCounts(); renderFeed(); renderPets();
+    }, () => { clearTimeout(loadTimer); showBanner("Sync stopped. Reopen Sparks to reconnect."); }));
+    unsubs.push(db.doc("people/" + other(side)).onSnapshot((snap) => {
+      people[other(side)] = snap.exists ? snap.data() : null;
+      onTheirDoc(people[other(side)]);
+      renderCounts(); renderStatus(); renderFeed(); renderPets();
+    }, () => {}));
+    const tk = todayKey();
+    for (const s of SIDES) unsubs.push(db.doc(`answers/${tk}_${s}`).onSnapshot((snap) => { answers[s] = snap.exists ? snap.data() : null; if (!editing) renderQ(); }, () => {}));
+    for (const s of SIDES) unsubs.push(db.doc(`quiz/${tk}_${s}`).onSnapshot((snap) => {
+      quizDocs[s] = snap.exists ? snap.data() : null;
+      renderQuiz();
+    }, () => {}));
+    unsubs.push(db.doc("live/" + other(side)).onSnapshot((snap) => { liveOther = snap.exists ? snap.data() : null; renderStatus(); tickHold(); }, () => {}));
+  }
+  function markSeen() {
+    if (!mine || !mineReady) return;
+    if (Date.now() - (mine.seenAt || 0) < 5 * 60e3) return;
+    mine.seenAt = Date.now(); flushMine();
+  }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) markSeen(); });
+  function showBanner(t) { $("banner").textContent = t; $("banner").hidden = false; }
+  function hideBanner() { $("banner").hidden = true; }
+
+  async function boot() {
+    renderAll();
+    if (!side) $("setup").hidden = false;
+    const [d, r] = await Promise.all([claude.use("db").catch(() => null), claude.use("room").catch(() => null)]);
+    db = d; room = r;
+    if (!db) {
+      showBanner("Sparks syncs when you're both signed in to Claude and the page is shared with each other. For now, taps stay on this phone.");
+      $("sparkBtn").disabled = !side;
+    } else {
+      db.doc("shared/config").onSnapshot((s) => { if (s.exists) { const c = s.data(); names.sj = c.sj || "Baby"; names.pg = c.pg || "Sayang"; renderAll(); } }, () => {});
+      db.doc("shared/meet").onSnapshot((s) => { meet = s.exists ? s.data() : null; renderMeet(); }, () => {});
+      if (side) connectDb();
+    }
+    if (room) {
+      room.onPeers((ch) => { peers = ch.peers; renderStatus(); tickHold(); });
+      room.on("spark", (m) => { if (!m.isMe && side && m.data && m.data.from === other(side)) { recentLive = true; clearTimeout(liveTimer); liveTimer = setTimeout(() => (recentLive = false), 4000); incoming(); } });
+      if (side) room.presence({ side, holding: false }).catch(() => {});
+    }
+    setEnabled();
+    setInterval(() => { renderStatus(); renderFeed(); }, 60000);
+  }
+
+  // ---------- penguins ----------
+  const ACCS = [["scarf", "scarf"], ["bow", "bow"], ["flower", "flower"], ["crown", "crown"], ["beanie", "beanie"], ["none", "nothing"]];
+  const defaultAcc = (s) => (s === "sj" ? "scarf" : "bow");
+  const docOf = (s) => (s === side ? mine : people[s]);
+  const klHour = () => Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Kuala_Lumpur" }).format(new Date()));
+  function penState(s) {
+    const carer = docOf(other(s)) || {}, owner = docOf(s) || {};
+    const now = Date.now(), fishAt = carer.fishAt || 0, patAt = carer.patAt || 0;
+    const tummy = fishAt ? Math.max(0, Math.min(1, 1 - (now - fishAt) / (12 * 3600e3))) : .4;
+    const h = klHour();
+    let st = "ok", mood = "Cosy and content";
+    if (h >= 1 && h < 7) { st = "sleep"; mood = "Sleeping… zzz"; }
+    else if (now - patAt < 30 * 60e3) { st = "happy"; mood = "Just got a pat!"; }
+    else if (tummy < .35) { st = "hungry"; mood = "Hungry. Fish please?"; }
+    else if (now - patAt > 12 * 3600e3) { st = "ok"; mood = "Wants a pat"; }
+    return { st, mood, tummy, acc: owner.acc || defaultAcc(s) };
+  }
+  function accSVG(a) {
+    if (a === "bow") return '<g transform="translate(86 30) rotate(18)"><path d="M0 0 L-15 -10 L-15 10Z" fill="#ff6f9e"/><path d="M0 0 L15 -10 L15 10Z" fill="#ff6f9e"/><circle r="4.5" fill="#e0447e"/></g>';
+    if (a === "scarf") return '<path d="M20 98 Q60 116 100 98 L100 109 Q60 127 20 109Z" fill="#ff6f9e"/><rect x="72" y="106" width="12" height="25" rx="5" fill="#e0447e"/>';
+    if (a === "flower") return '<g transform="translate(36 30)">' + [0, 72, 144, 216, 288].map((d) => `<circle cx="${(8 * Math.cos(d * Math.PI / 180)).toFixed(1)}" cy="${(8 * Math.sin(d * Math.PI / 180)).toFixed(1)}" r="6.5" fill="#ffc2d8"/>`).join("") + '<circle r="4.5" fill="#ffc95c"/></g>';
+    if (a === "crown") return '<path d="M40 30 L45 12 L53 23 L60 8 L67 23 L75 12 L80 30Z" fill="#ffc95c" stroke="#e0a43a" stroke-width="2" stroke-linejoin="round"/>';
+    if (a === "beanie") return '<path d="M22 46 Q60 -6 98 46Z" fill="#ff8fb4"/><rect x="20" y="40" width="80" height="11" rx="5.5" fill="#fff"/><circle cx="60" cy="10" r="8" fill="#fff"/>';
+    return "";
+  }
+  function penguinSVG(p, mirror) {
+    const eyes = p.st === "sleep"
+      ? '<path d="M41 57 Q46 61 51 57 M69 57 Q74 61 79 57" stroke="#2b2340" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      : p.st === "happy"
+      ? '<path d="M41 58 Q46 51 51 58 M69 58 Q74 51 79 58" stroke="#2b2340" stroke-width="3" fill="none" stroke-linecap="round"/>'
+      : '<circle cx="46" cy="56" r="5.5" fill="#2b2340"/><circle cx="74" cy="56" r="5.5" fill="#2b2340"/><circle cx="47.8" cy="54" r="1.8" fill="#fff"/><circle cx="75.8" cy="54" r="1.8" fill="#fff"/>';
+    const mouth = p.st === "hungry" ? '<ellipse cx="60" cy="74" rx="3" ry="2.4" fill="#e0447e"/>' : "";
+    const body = `
+      <ellipse cx="44" cy="132" rx="13" ry="6" fill="#ffa94d"/><ellipse cx="76" cy="132" rx="13" ry="6" fill="#ffa94d"/>
+      <g class="flip-out"><ellipse cx="17" cy="84" rx="9" ry="25" fill="#3c4068" transform="rotate(18 17 84)"/></g>
+      <g class="flip-in"><ellipse cx="103" cy="84" rx="9" ry="25" fill="#3c4068" transform="rotate(-18 103 84)"/></g>
+      <ellipse cx="60" cy="80" rx="44" ry="54" fill="#3c4068"/>
+      <ellipse cx="60" cy="92" rx="31" ry="40" fill="#fffaf7"/>
+      <circle cx="46" cy="56" r="17" fill="#fffaf7"/><circle cx="74" cy="56" r="17" fill="#fffaf7"/>
+      ${eyes}
+      <ellipse cx="37" cy="68" rx="7" ry="4.5" fill="#ff9cbf"/><ellipse cx="83" cy="68" rx="7" ry="4.5" fill="#ff9cbf"/>
+      <path d="M53 63 Q60 59 67 63 Q60 72 53 63Z" fill="#ffa94d"/>
+      ${mouth}${accSVG(p.acc)}`;
+    const g = mirror ? `<g transform="translate(120 0) scale(-1 1)">${body}</g>` : body;
+    const zz = p.st === "sleep" ? '<text class="zz" x="96" y="20">z</text><text class="zz" x="106" y="6" style="font-size:12px">z</text>' : "";
+    return `<svg viewBox="0 0 120 140" role="img" aria-label="Penguin">${g}${zz}</svg>`;
+  }
+  const penSig = { sj: "", pg: "" };
+  function renderPets() {
+    for (const s of SIDES) {
+      const p = penState(s);
+      const sig = p.st + "|" + p.acc;
+      if (sig !== penSig[s]) { penSig[s] = sig; $("peng-" + s).innerHTML = penguinSVG(p, s === "pg"); }
+      $("tummy-" + s).style.width = Math.round(p.tummy * 100) + "%";
+      $("mood-" + s).textContent = p.mood;
+      $("penname-" + s).textContent = nm(s);
+      $("pen-" + s).setAttribute("aria-label", side && s !== side ? `Pat ${nm(s)}'s penguin` : `${nm(s)}'s penguin`);
+    }
+    if (side) {
+      const o = nm(other(side));
+      $("petFeedSub").textContent = `to ${o}'s penguin`;
+      $("petPatSub").textContent = `${o}'s penguin`;
+      const acc = (mine && mine.acc) || defaultAcc(side);
+      $("petDressSub").textContent = "wearing: " + (ACCS.find((a) => a[0] === acc) || ACCS[0])[1];
+      $("petHint").textContent = `You look after ${o}'s penguin and ${o} looks after yours. Tap ${o}'s penguin to give it a pat.`;
+    }
+    const ok = !!(db && side && mineReady);
+    for (const id of ["petFeed", "petPat", "petDress"]) $(id).disabled = !ok;
+  }
+  function hop(s) {
+    const el = $("peng-" + s); if (!el) return;
+    el.classList.remove("hop"); void el.offsetWidth; el.classList.add("hop");
+    setTimeout(() => el.classList.remove("hop"), 600);
+  }
+  function penPoint(s) { const r = $("peng-" + s).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height * .3]; }
+  function petAction(kind) {
+    if (!mine || !mineReady || !side) return;
+    const o = other(side), now = Date.now();
+    if (kind === "fish") mine.fishAt = now;
+    if (kind === "pat") mine.patAt = now;
+    if (kind === "dress") {
+      const cur = mine.acc || defaultAcc(side);
+      const i = ACCS.findIndex((a) => a[0] === cur);
+      mine.acc = ACCS[(i + 1) % ACCS.length][0];
+    }
+    const head = mine.feed && mine.feed[0];
+    if (head && head.k === kind && now - head.t < 5 * 60e3) { head.t = now; if (kind === "dress") head.text = mine.acc; }
+    else pushFeed(kind === "dress" ? { k: "dress", text: mine.acc } : { k: kind });
+    renderPets(); renderFeed(); flushMine();
+    if (kind === "dress") { hop(side); const [x, y] = penPoint(side); burst(x, y, 16, true); return; }
+    hop(o);
+    const [x, y] = penPoint(o);
+    if (kind === "fish") fishRain(x, y); else burst(x, y, 24, true);
+  }
+  $("petFeed").addEventListener("click", () => petAction("fish"));
+  $("petPat").addEventListener("click", () => petAction("pat"));
+  $("petDress").addEventListener("click", () => petAction("dress"));
+  for (const s of SIDES) $("pen-" + s).addEventListener("click", () => {
+    if (!side) return;
+    if (s === side) { hop(s); const [x, y] = penPoint(s); burst(x, y, 8, true); }
+    else petAction("pat");
+  });
+  setInterval(renderPets, 60000);
+
+  // ---------- visuals ----------
+  const fx = $("fx"), ctx = fx.getContext("2d");
+  const stars = $("stars"), sctx = stars.getContext("2d");
+  let W = 0, H = 0, DPR = 1, parts = [], fxRaf = 0;
+  function resize() {
+    DPR = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+    for (const c of [fx, stars]) { c.width = W * DPR; c.height = H * DPR; }
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0); sctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    drawStars();
+  }
+  function drawStars() {
+    sctx.clearRect(0, 0, W, H);
+    let seed = 7; const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+    for (let i = 0; i < Math.round(W * H / 9000); i++) {
+      sctx.globalAlpha = .25 + rnd() * .4; sctx.fillStyle = rnd() > .5 ? "#ffffff" : "#ffb8d0";
+      const x = rnd() * W, y = rnd() * H, r = rnd() * 3 + 1.5;
+      if (rnd() > .7) { sctx.beginPath(); sctx.moveTo(x, y + r * .35); sctx.bezierCurveTo(x - r, y - r * .4, x - r * .5, y - r * 1.1, x, y - r * .45); sctx.bezierCurveTo(x + r * .5, y - r * 1.1, x + r, y - r * .4, x, y + r * .35); sctx.fill(); }
+      else { sctx.beginPath(); sctx.arc(x, y, r * .5, 0, 6.283); sctx.fill(); }
+    }
+    sctx.globalAlpha = 1;
+  }
+  addEventListener("resize", resize); resize();
+
+  function burst(x, y, n, hearts) {
+    if (reduced) n = Math.min(n, 8);
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * 6.283, v = 2 + Math.random() * 5;
+      parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 2, life: 1, heart: hearts && Math.random() < .35,
+        c: Math.random() < .45 ? "#ff6f9e" : Math.random() < .5 ? "#ffc95c" : "#ffb3cd", s: 1.5 + Math.random() * 2.5 });
+    }
+    if (!fxRaf) fxRaf = requestAnimationFrame(stepFx);
+  }
+  function fishRain(x, y) {
+    const n = reduced ? 2 : 6;
+    for (let i = 0; i < n; i++) parts.push({ x: x + (Math.random() - .5) * 60, y: y - 70 - Math.random() * 40, vx: (Math.random() - .5) * 1.2, vy: 1 + Math.random(), life: 1, txt: "🐟", c: "#000", s: 2 });
+    burst(x, y, 10, true);
+  }
+  function burstCenter() { burst(W / 2, H / 3, 30, true); }
+  function heart(x, y, s) {
+    ctx.beginPath(); ctx.moveTo(x, y + s * .35);
+    ctx.bezierCurveTo(x - s, y - s * .4, x - s * .5, y - s * 1.1, x, y - s * .45);
+    ctx.bezierCurveTo(x + s * .5, y - s * 1.1, x + s, y - s * .4, x, y + s * .35); ctx.fill();
+  }
+  function stepFx() {
+    ctx.clearRect(0, 0, W, H);
+    parts = parts.filter((p) => p.life > 0);
+    for (const p of parts) {
+      p.x += p.vx; p.y += p.vy; p.vy += .12; p.vx *= .985; p.life -= .016;
+      ctx.globalAlpha = Math.max(0, p.life); ctx.fillStyle = p.c;
+      if (p.txt) { ctx.font = "22px system-ui, sans-serif"; ctx.textAlign = "center"; ctx.fillText(p.txt, p.x, p.y); }
+      else if (p.heart) heart(p.x, p.y, p.s * 3);
+      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, 6.283); ctx.fill(); }
+    }
+    ctx.globalAlpha = 1;
+    fxRaf = parts.length ? requestAnimationFrame(stepFx) : 0;
+    if (!fxRaf) ctx.clearRect(0, 0, W, H);
+  }
+  // A spark travelling along the wire between the two towns.
+  function travel(from) {
+    if (reduced) return;
+    const path = $("wirePath"), svg = path.ownerSVGElement, r = svg.getBoundingClientRect();
+    const len = path.getTotalLength(), t0 = performance.now(), dur = 650;
+    function step(now) {
+      let k = Math.min(1, (now - t0) / dur); const kk = from === "sj" ? k : 1 - k;
+      const pt = path.getPointAtLength(len * kk);
+      const x = r.left + (pt.x / 200) * r.width, y = r.top + (pt.y / 40) * r.height;
+      parts.push({ x, y, vx: (Math.random() - .5), vy: (Math.random() - .5), life: .5, c: "#ff6f9e", s: 2.2 });
+      if (!fxRaf) fxRaf = requestAnimationFrame(stepFx);
+      if (k < 1) requestAnimationFrame(step); else burst(x, y, 14);
+    }
+    requestAnimationFrame(step);
+  }
+
+  boot();
+})();
+</script>
