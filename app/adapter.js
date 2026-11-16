@@ -93,18 +93,22 @@
 
   async function lookupSide(email) {
     const { data, error } = await sb.from("members").select("side").eq("email", (email || "").toLowerCase()).maybeSingle();
-    if (error) return null;
-    return data ? data.side : null;
+    if (error) return { error: error.message };
+    return { side: data ? data.side : null };
   }
 
   async function start() {
     if (!sb) { showLogin("The app isn't set up yet: fill in config.js first."); resolveReady(false); return; }
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { showLogin(); return; }
-    const side = await lookupSide(session.user.email);
+    const found = await lookupSide(session.user.email);
+    const side = found.side;
     if (!side) {
+      const email = session.user.email;
       await sb.auth.signOut();
-      showLogin("This email isn't one of the two Sparks accounts.");
+      showLogin(found.error
+        ? `Signed in as ${email}, but couldn't read the members list (${found.error}). Has the setup SQL been run in Supabase?`
+        : `Signed in as ${email}, but that email isn't in the members table. Add it in Supabase (Table Editor → members), then sign in again.`);
       return;
     }
     let stored = null;
