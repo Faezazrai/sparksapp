@@ -49,6 +49,15 @@ create policy "own subs" on public.push_subscriptions for all to authenticated
   using (user_id = auth.uid() and public.is_member())
   with check (user_id = auth.uid() and public.is_member());
 
+-- Let signed-in users (and the notify function) reach the tables. Newer Supabase
+-- projects don't grant this automatically; the policies above still decide who sees what.
+grant usage on schema public to authenticated, service_role;
+grant select on public.members to authenticated;
+grant select, insert, update, delete on public.kv to authenticated;
+grant select, insert, update, delete on public.push_subscriptions to authenticated;
+grant all on public.members, public.kv, public.push_subscriptions to service_role;
+grant execute on function public.is_member() to authenticated;
+
 -- Live updates for the document store.
 do $$ begin
   alter publication supabase_realtime add table public.kv;
