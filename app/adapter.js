@@ -52,45 +52,42 @@
       box.innerHTML = `
         <form id="sp-email">
           <h1>Sparks</h1>
-          <p>Sign in with your email. We'll send you a 6-digit code.</p>
+          <p id="sp-intro">Sign in with your email and password.</p>
           <input type="email" id="sp-e" placeholder="you@example.com" autocomplete="email" required>
-          <button type="submit">Send my code</button>
+          <input type="password" id="sp-p" placeholder="Password (at least 6 characters)" autocomplete="current-password" minlength="6" required>
+          <button type="submit" id="sp-go">Sign in</button>
+          <a href="#" id="sp-toggle" style="color:#e0447e;font-weight:800;text-align:center">First time here? Create your password</a>
           <span class="err" id="sp-err"></span>
         </form>`;
       document.body.appendChild(box);
       const err = box.querySelector("#sp-err");
       if (message) err.textContent = message;
+      let creating = false;
+      box.querySelector("#sp-toggle").addEventListener("click", (e) => {
+        e.preventDefault();
+        creating = !creating;
+        box.querySelector("#sp-intro").textContent = creating ? "Pick a password for Sparks. You'll only do this once." : "Sign in with your email and password.";
+        box.querySelector("#sp-go").textContent = creating ? "Create my account" : "Sign in";
+        box.querySelector("#sp-toggle").textContent = creating ? "Already have a password? Sign in" : "First time here? Create your password";
+        box.querySelector("#sp-p").autocomplete = creating ? "new-password" : "current-password";
+        err.textContent = "";
+      });
       box.querySelector("#sp-email").addEventListener("submit", async (e) => {
         e.preventDefault();
         if (!sb) { err.textContent = "The app isn't set up yet: fill in config.js first."; return; }
         const email = box.querySelector("#sp-e").value.trim().toLowerCase();
-        err.textContent = "Sending…";
-        const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
-        if (error) { err.textContent = "Couldn't send the code: " + error.message; return; }
-        showCode(email);
+        const password = box.querySelector("#sp-p").value;
+        err.textContent = creating ? "Creating your account…" : "Signing in…";
+        if (creating) {
+          const { data, error } = await sb.auth.signUp({ email, password });
+          if (error) { err.textContent = /registered|exists/i.test(error.message) ? "This email already has a password. Tap \"Sign in\" instead." : "Couldn't create the account: " + error.message; return; }
+          if (!data.session) { err.textContent = "Account made, but Supabase wants email confirmation. Turn off \"Confirm email\" in Supabase, then sign in."; return; }
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) { err.textContent = "Wrong email or password. First time? Tap \"Create your password\"."; return; }
+        }
+        start();
       });
-    });
-  }
-
-  function showCode(email) {
-    const box = document.getElementById("sp-login");
-    box.innerHTML = `
-      <form id="sp-code">
-        <h1>Check your email</h1>
-        <p>Type the 6-digit code we sent to <b></b>.</p>
-        <input inputmode="numeric" autocomplete="one-time-code" id="sp-c" placeholder="123456" maxlength="10" required>
-        <button type="submit">Sign in</button>
-        <span class="err" id="sp-err"></span>
-      </form>`;
-    box.querySelector("b").textContent = email;
-    const err = box.querySelector("#sp-err");
-    box.querySelector("#sp-code").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      err.textContent = "Checking…";
-      const token = box.querySelector("#sp-c").value.trim();
-      const { error } = await sb.auth.verifyOtp({ email, token, type: "email" });
-      if (error) { err.textContent = "That code didn't work. Check it and try again."; return; }
-      start();
     });
   }
 

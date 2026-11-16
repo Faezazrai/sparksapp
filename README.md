@@ -9,7 +9,7 @@ It's a web app you install to the home screen (a PWA). It's hosted free on GitHu
 | Part | Where | What it does |
 | --- | --- | --- |
 | `app/sparks.html` | the app itself | Same page as the Claude version of Sparks |
-| `app/adapter.js` | in the browser | Sign-in with an email code, syncing through Supabase, push notification setup |
+| `app/adapter.js` | in the browser | Sign-in with email + password, syncing through Supabase, push notification setup |
 | `app/sw.js` | in the browser | Shows notifications, works offline |
 | `supabase/migrations/001_init.sql` | Supabase | Tables, who's allowed in, live updates |
 | `supabase/functions/notify` | Supabase | Sends the push to the other phone |
@@ -20,10 +20,9 @@ It's a web app you install to the home screen (a PWA). It's hosted free on GitHu
 ### 1. Supabase project
 1. Create a free project at supabase.com. Pick the Singapore region; it's closest to you both.
 2. Go to **SQL Editor** and paste in `supabase/migrations/001_init.sql`. **Change the two emails at the bottom** first: yours goes with `sj`, hers with `pg`. Then click Run.
-3. Go to **Authentication → Emails → Magic Link** template and make the email show the code by putting `{{ .Token }}` in it, for example:
-   `<h2>Your Sparks code</h2><p>{{ .Token }}</p>`
-   (The app signs in with a 6-digit code instead of a link, because links open in the browser instead of the installed app.)
-4. Go to **Authentication → URL Configuration** and set the Site URL to your GitHub Pages address (step 3 below).
+3. Go to **Authentication → Sign In / Providers → Email**. Keep Email **enabled**, turn **off "Confirm email"**, and save. Sparks signs in with email + password, so Supabase never needs to send an email (no SMTP setup needed).
+4. Go to **Authentication → URL Configuration** and set the Site URL to your GitHub Pages address (step 4 below).
+5. After you've **both** created your passwords in the app, you can turn off **"Allow new users to sign up"** (Authentication → Sign In / Providers) so nobody else can even make an account. (Even with it on, only the two emails in `members` can see anything.)
 
 ### 2. Notification keys (VAPID)
 On any computer with Node installed, run:
@@ -44,10 +43,10 @@ Put in your Supabase **Project URL**, the **anon public** key (from Project Sett
 In this repo, go to **Settings → Pages → Source: GitHub Actions**. Every push to `main` then publishes to `https://<your-username>.github.io/sparksapp/`.
 
 ## Installing on your phones
-- **Her Android (Chrome):** open the link, tap **Install app** (or ⋮ → Add to Home screen), open Sparks, sign in, then tap **Turn on notifications**.
-- **Your iPhone (Safari, iOS 16.4 or later):** open the link, tap **Share → Add to Home Screen**, open Sparks **from the home-screen icon**, sign in, then tap **Turn on notifications**. iPhones only allow notifications for apps added to the Home Screen.
+- **Her Android (Chrome):** open the link, tap **Install app** (or ⋮ → Add to Home screen), open Sparks, create your password (first time) or sign in, then tap **Turn on notifications**.
+- **Your iPhone (Safari, iOS 16.4 or later):** open the link, tap **Share → Add to Home Screen**, open Sparks **from the home-screen icon**, create your password (first time) or sign in, then tap **Turn on notifications**. iPhones only allow notifications for apps added to the Home Screen.
 
 ## Good to know
-- Only the two emails in `members` can sign in or see anything.
+- Only the two emails in `members` can see or change anything.
+- First time on each phone: tap **"First time here? Create your password"**. After that, just sign in. You stay signed in.
 - A free Supabase project pauses after a week with no use. Opening the app now and then keeps it awake.
-- The built-in email sender only sends a few codes per hour. That's plenty for two people, since you each sign in once.
