@@ -20,7 +20,7 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET" || url.origin !== self.location.origin) return;
   e.respondWith((async () => {
     try {
-      const res = await fetch(e.request);
+      const res = await fetch(e.request.url, { cache: "no-cache", credentials: "same-origin" });
       const c = await caches.open(CACHE); c.put(e.request, res.clone());
       return res;
     } catch {
