@@ -3,5 +3,5 @@
 window.SPARKS_CONFIG = {
   supabaseUrl: "https://YOUR-PROJECT-REF.supabase.co",
   supabaseAnonKey: "YOUR-ANON-PUBLIC-KEY",
-  vapidPublicKey: "YOUR-VAPID-PUBLIC-KEY"
+  vapidPublicKey: "BNQzZlR5mWtNkUSnauhzCRJooNb-CpQ2mJI3BDK_4kciA6pwJqvVDOos6yxQMVfe5fUfzlzOMd3aacaVt67lmHE"
 };
