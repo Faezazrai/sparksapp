@@ -249,7 +249,26 @@
 
   async function saveSubscription(sub) {
     const j = sub.toJSON();
-    await sb.from("push_subscriptions").upsert({ endpoint: j.endpoint, user_id: me.user.id, side: me.side, subscription: j });
+    const { error } = await sb.from("push_subscriptions").upsert({ endpoint: j.endpoint, user_id: me.user.id, side: me.side, subscription: j });
+    if (error) { notice("Couldn't save this phone for notifications: " + error.message); throw error; }
+  }
+
+  // A small message at the top of the screen, for things that go wrong behind the scenes.
+  let noticeTimer;
+  function notice(text) {
+    onDom(() => {
+      let n = document.getElementById("sp-msg");
+      if (!n) {
+        n = document.createElement("div"); n.id = "sp-msg";
+        n.style.cssText = "position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top,0px));z-index:70;" +
+          "max-width:calc(100% - 32px);background:#fff7fa;color:#5b2343;border:2px solid #ff6f9e;border-radius:16px;padding:10px 14px;" +
+          "font:700 14px Nunito,ui-rounded,system-ui,sans-serif;box-shadow:0 8px 20px rgba(224,68,126,.25);text-align:center";
+        n.addEventListener("click", () => n.remove());
+        document.body.appendChild(n);
+      }
+      n.textContent = text;
+      clearTimeout(noticeTimer); noticeTimer = setTimeout(() => n.remove(), 9000);
+    });
   }
 
   function pushButton(text, onClick) {
@@ -281,7 +300,7 @@
       try {
         const sub = existing || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(cfg.vapidPublicKey) });
         await saveSubscription(sub);
-      } catch (e) { console.warn("push subscribe failed", e); }
+      } catch (e) { if (!e || !e.message || !/save this phone/.test(String(e.message))) notice("Notifications are allowed, but this phone couldn't sign up for them: " + ((e && e.message) || e)); }
       return;
     }
     if (Notification.permission === "denied") return;
@@ -294,6 +313,7 @@
         await saveSubscription(sub);
         hidePushButton();
       } catch (e) {
+        notice("Couldn't turn on notifications: " + ((e && e.message) || e));
         pushButton("Couldn't turn on notifications. Tap to try again", () => setupPush());
       }
     });
@@ -319,7 +339,16 @@
       entry.k === "quiz" ? "finished today's quiz. Your turn!" :
       entry.k === "meet" ? "set the date for your next meet-up 💗" :
       "is thinking of you";
-    sb.functions.invoke("notify", { body: { title: from, body } }).catch(() => {});
+    const other = names[me.side === "sj" ? "pg" : "sj"] || (me.side === "sj" ? "Sayang" : "Baby");
+    sb.functions.invoke("notify", { body: { title: from, body } }).then(async ({ data, error }) => {
+      if (error) {
+        let detail = error.message || "unknown error";
+        try { if (error.context && error.context.status) detail = `${error.context.status} ${(await error.context.text()).slice(0, 120)}`; } catch {}
+        notice("Notification didn't send (" + detail + ")");
+      } else if (data && data.sent === 0) {
+        notice(`Notification not delivered: ${other}'s phone hasn't turned on notifications yet.`);
+      }
+    }).catch((e) => notice("Notification didn't send (" + ((e && e.message) || e) + ")"));
   };
 
   start();
